@@ -23,17 +23,31 @@ namespace GaEn
         }
         #endregion
 
-        Game game;
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        private Game game;
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
+
+        #region Properties
+        public Input.InputManager InputManager { get { return Input.InputManager.Instance; } }
+        #endregion
 
         private Engine(Game game) : base(game)
         {
             this.game = game;
             this.game.Components.Add(this);
 
-            graphics = new GraphicsDeviceManager(this.game);
-            this.game.Content.RootDirectory = "Content";
+            Setup();
+        }
+
+        private void Setup()
+        {
+            graphics = new GraphicsDeviceManager(game);
+            game.Content.RootDirectory = "Content";
+
+            var action = new Input.InputAction("KILLGAME") { Type = Input.InputAction.InputActionTypes.All };
+            action.Add(Keys.LeftAlt);
+            action.Add(Keys.Q);
+            InputManager.AddAction(action);
         }
 
         protected override void LoadContent()
@@ -43,7 +57,9 @@ namespace GaEn
 
         public override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.LeftAlt) && Keyboard.GetState().IsKeyDown(Keys.F4))
+            InputManager.Update(gameTime);
+
+            if (InputManager["KILLGAME"].IsDown())
                 game.Exit();
         }
 
